@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Schlauchboot.Ripper.Crunchyroll.Manager\**" />
+    <EmbeddedResource Remove="Schlauchboot.Ripper.Crunchyroll.Manager\**" />
+    <None Remove="Schlauchboot.Ripper.Crunchyroll.Manager\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="config.json" />
   </ItemGroup>
 
@@ -16,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Schlauchboot.Ripper.Crunchyroll.Manager\Schlauchboot.Ripper.Crunchyroll.Manager.csproj" />
+    <ProjectReference Include="Schlauchboot.Ripper.Crunchyroll.Manager\Schlauchboot.Ripper.Crunchyroll.Manager.csproj" />
   </ItemGroup>
 
 </Project>

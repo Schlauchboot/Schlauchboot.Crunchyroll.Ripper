@@ -1,4 +1,6 @@
-﻿using System;
+﻿//Open Tasks: Implement Playlist-Support
+
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,7 +16,6 @@ namespace Schlauchboot.Ripper.Crunchyroll
     {
         static async Task Main(string[] args)
         {
-            #region environmentSetup
             if (!Directory.Exists($"{AppDomain.CurrentDomain.BaseDirectory}\\Config"))
             {
                 Directory.CreateDirectory($"{AppDomain.CurrentDomain.BaseDirectory}\\Config");
@@ -33,35 +34,42 @@ namespace Schlauchboot.Ripper.Crunchyroll
             {
                 config = setupManager.ReadConfig();
             }
-            if (args.Length != 2)
+            if (args.Length < 2)
             {
-                Console.WriteLine("\nPlease pass two Arguments to this Programm (inputType, inputPath)!\n");
+                Console.WriteLine("\nPlease pass at least two Arguments to this Programm (inputType, inputPath)!\n");
                 Environment.Exit(1);
             }
-            #endregion
-
-            #region variableSetup
             var webManager = new Web();
             var browserRevision = await webManager.GetBrowser();
             var webPages = new List<string>();
             var parsingManager = new Parsing();
-            #endregion
-
-            #region processSelection
             if (args[0] == "file")
             {
-                throw new NotImplementedException();
+                var episodeList = File.ReadAllLines(args[1]);
+                foreach (var episode in episodeList)
+                {
+                    if (episode.Contains("http"))
+                    {
+                        webPages.Add(await webManager.GetWebPage(browserRevision.ExecutablePath, episode));
+                    }
+                }
             }
             else if (args[0] == "episode")
             {
-                webPages.Add(await webManager.GetWebPage(browserRevision.ExecutablePath, args[1]));
+                if (args[2] == null)
+                {
+                    webPages.Add(await webManager.GetWebPage(browserRevision.ExecutablePath, args[1]));
+                }
+                else
+                {
+                    webPages.Add(await webManager.GetWebPage(browserRevision.ExecutablePath, args[1],
+                        new KeyValuePair<string, string>("session_id", args[2])));
+                }
             }
             else if (args[0] == "playlist")
             {
                 throw new NotImplementedException();
             }
-            #endregion
-
             foreach (var webPage in webPages)
             {
                 var htmlDocument = parsingManager.generateHtmlDocument(webPage);
