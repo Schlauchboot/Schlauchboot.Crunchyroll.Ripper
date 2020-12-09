@@ -56,7 +56,7 @@ namespace Schlauchboot.Ripper.Crunchyroll
             }
             else if (args[0] == "episode")
             {
-                if (args[2] == null)
+                if (args.Length !>= 2)
                 {
                     webPages.Add(await webManager.GetWebPage(browserRevision.ExecutablePath, args[1]));
                 }

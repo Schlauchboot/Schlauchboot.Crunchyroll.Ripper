@@ -27,8 +27,9 @@ namespace Schlauchboot.Ripper.Crunchyroll.Manager.Methods
         public async Task<string> GetWebPage(string browserExecutablePath, string webPage)
         {
             var browser = await CreateBrowser(browserExecutablePath);
-            await browser.PagesAsync().Result[0].GoToAsync(webPage);
-            var pageContent = await browser.PagesAsync().Result[0].GetContentAsync();
+            var openPages = await browser.PagesAsync();
+            await openPages[0].GoToAsync(webPage);
+            var pageContent = await openPages[0].GetContentAsync();
             await browser.CloseAsync();
             return pageContent;
         }
