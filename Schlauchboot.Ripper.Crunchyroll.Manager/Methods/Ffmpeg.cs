@@ -1,4 +1,4 @@
-﻿//Open Tasks: Implement custom Ffmpeg-Arguments, Error-Handling
+﻿//Open Tasks: Implement custom Ffmpeg-Arguments
 
 using System;
 using System.Threading.Tasks;
@@ -20,17 +20,23 @@ namespace Schlauchboot.Ripper.Crunchyroll.Manager.Methods
         /// <param name="targetFilePath">The full Path for the Output-File.</param>
         public async Task DownloadEpisode(Uri episodeUrl, string targetFilePath)
         {
-            await FFMpegArguments.FromUrlInput(episodeUrl)
-                .OutputToFile(targetFilePath, true, options => options
-                    .WithCustomArgument("-bsf:a aac_adtstoasc")
-                    .WithCustomArgument("-vcodec copy")
-                    .WithCustomArgument("-c copy")
-                    .WithCustomArgument("-crf 50")
-                    .WithCustomArgument("-tune animation")
-                    .UsingThreads(8)
-                    .UsingMultithreading(true))
-                .ProcessAsynchronously();
+            try
+            {
+                await FFMpegArguments.FromUrlInput(episodeUrl)
+                    .OutputToFile(targetFilePath, true, options => options
+                        .WithCustomArgument("-bsf:a aac_adtstoasc")
+                        .WithCustomArgument("-vcodec copy")
+                        .WithCustomArgument("-c copy")
+                        .WithCustomArgument("-crf 50")
+                        .WithCustomArgument("-tune animation")
+                        .UsingThreads(8)
+                        .UsingMultithreading(true))
+                    .ProcessAsynchronously();
+            }
+            catch (Exception genericException) //It is unknow which Exception will be thrown here...
+            {
+                Console.WriteLine($"Ffmpeg ran into the following Error: {genericException.Message}");
+            }
         }
     }
-
 }

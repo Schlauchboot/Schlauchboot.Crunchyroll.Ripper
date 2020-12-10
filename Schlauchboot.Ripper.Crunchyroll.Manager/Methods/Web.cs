@@ -1,5 +1,6 @@
 ﻿//Open Tasks: Find a Way to use the headless Browser
 
+using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -27,11 +28,21 @@ namespace Schlauchboot.Ripper.Crunchyroll.Manager.Methods
         public async Task<string> GetWebPage(string browserExecutablePath, string webPage)
         {
             var browser = await CreateBrowser(browserExecutablePath);
-            var openPages = await browser.PagesAsync();
-            await openPages[0].GoToAsync(webPage);
-            var pageContent = await openPages[0].GetContentAsync();
-            await browser.CloseAsync();
-            return pageContent;
+            try
+            {
+                var openPages = await browser.PagesAsync();
+                await openPages[0].GoToAsync(webPage);
+                var pageContent = await openPages[0].GetContentAsync();
+                return pageContent;
+            }
+            catch (Exception)
+            {
+                return String.Empty;
+            }
+            finally
+            {
+                await browser.CloseAsync();
+            }
         }
 
         /// <summary>
@@ -44,20 +55,30 @@ namespace Schlauchboot.Ripper.Crunchyroll.Manager.Methods
         public async Task<string> GetWebPage(string browserExecutablePath, string webPage, KeyValuePair<string, string> cookie)
         {
             var browser = await CreateBrowser(browserExecutablePath);
-            var openPages = await browser.PagesAsync();
-            await openPages[0].GoToAsync(webPage);
-            await openPages[0].DeleteCookieAsync();
-            await openPages[0].SetCookieAsync(new CookieParam()
+            try
             {
-                Domain = ".crunchyroll.com",
-                Name = cookie.Key,
-                Value = cookie.Value,
-                HttpOnly = true
-            });
-            await openPages[0].ReloadAsync();
-            var pageContent = await browser.PagesAsync().Result[0].GetContentAsync();
-            await browser.CloseAsync();
-            return pageContent;
+                var openPages = await browser.PagesAsync();
+                await openPages[0].GoToAsync(webPage);
+                await openPages[0].DeleteCookieAsync();
+                await openPages[0].SetCookieAsync(new CookieParam()
+                {
+                    Domain = ".crunchyroll.com",
+                    Name = cookie.Key,
+                    Value = cookie.Value,
+                    HttpOnly = true
+                });
+                await openPages[0].ReloadAsync();
+                var pageContent = await browser.PagesAsync().Result[0].GetContentAsync();
+                return pageContent;
+            }
+            catch (Exception)
+            {
+                return String.Empty;
+            }
+            finally
+            {
+                await browser.CloseAsync();
+            }
         }
 
         /// <summary>

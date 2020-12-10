@@ -77,71 +77,80 @@ namespace Schlauchboot.Ripper.Crunchyroll
                 streamList.RemoveAll(x => x.format != "adaptive_hls");
                 var showTitle = parsingManager.parseEpisodeHtmlShow(htmlDocument);
                 var episodeTitle = parsingManager.parseEpisodeHtmlTitle(htmlDocument);
+                var episodeNumber = parsingManager.parseEpisodeHtmlNumber(htmlDocument);
                 Console.WriteLine($"\nThe following Streams have been found for {episodeTitle}:\n");
-                foreach (var stream in streamList)
+                if (streamList.Count != 0)
                 {
-                    Console.WriteLine("AudioLanguage: " + stream.audio_lang);
-                    Console.WriteLine("SubLanguage: " + stream.hardsub_lang);
-                    Console.WriteLine("M3u8: " + stream.url);
-                    Console.WriteLine();
-                }
-                var audioSelection = String.Empty;
-                if (config != null && config.preferedAudioLang != String.Empty)
-                {
-                    audioSelection = config.preferedAudioLang;
-                }
-                else
-                {
-                    Console.Write("Which AudioLanguage should be chosen?: ");
-                    audioSelection = Console.ReadLine();
-                    Console.WriteLine();
-                }
-                var subSelection = String.Empty;
-                if (config != null && config.preferedSubLang != String.Empty)
-                {
-                    subSelection = config.preferedSubLang;
-                }
-                else
-                {
-                    Console.Write("Which SubLanguage should be chosen (null = No Sub)?: ");
-                    subSelection = Console.ReadLine();
-                    if (subSelection == "null")
+                    foreach (var stream in streamList)
                     {
-                        subSelection = null;
+                        Console.WriteLine("AudioLanguage: " + stream.audio_lang);
+                        Console.WriteLine("SubLanguage: " + stream.hardsub_lang);
+                        Console.WriteLine("M3u8: " + stream.url);
+                        Console.WriteLine();
                     }
-                    Console.WriteLine();
-                }
-                var streamSelection = streamList.Where(x => x.audio_lang == audioSelection && x.hardsub_lang == subSelection);
-                var fallback = true;
-                if (streamSelection.Count() == 0)
-                {
-                    Console.WriteLine("No Stream matches the Selection!\n");
-                    if (config != null && config.fallback == false)
+                    var audioSelection = String.Empty;
+                    if (config != null && config.preferedAudioLang != String.Empty)
                     {
-                        Console.WriteLine("Episode will be skipped!\n");
-                        fallback = false;
+                        audioSelection = config.preferedAudioLang;
                     }
                     else
                     {
-                        Console.WriteLine("A random Stream will be selected!\n");
-                        streamSelection = streamList.OrderBy(x => Guid.NewGuid());
-                        fallback = true;
+                        Console.Write("Which AudioLanguage should be chosen?: ");
+                        audioSelection = Console.ReadLine();
+                        Console.WriteLine();
                     }
-                }
-                if (fallback)
-                {
-                    Console.WriteLine("Your Episode will be downloaded!\n");
-                    var ffmpegManager = new Ffmpeg();
-                    if (config != null && config.outputPath != String.Empty)
+                    var subSelection = String.Empty;
+                    if (config != null && config.preferedSubLang != String.Empty)
                     {
-                        await ffmpegManager.DownloadEpisode(new Uri(streamSelection.First().url),
-                            $"{config.outputPath}\\{showTitle} - {episodeTitle}.mp4");                        
+                        subSelection = config.preferedSubLang;
                     }
                     else
                     {
-                        await ffmpegManager.DownloadEpisode(new Uri(streamSelection.First().url),
-                            $"{AppDomain.CurrentDomain.BaseDirectory}\\Downloads\\{showTitle} - {episodeTitle}.mp4");
+                        Console.Write("Which SubLanguage should be chosen (null = No Sub)?: ");
+                        subSelection = Console.ReadLine();
+                        if (subSelection == "null")
+                        {
+                            subSelection = null;
+                        }
+                        Console.WriteLine();
                     }
+                    var streamSelection = streamList.Where(x => x.audio_lang == audioSelection && x.hardsub_lang == subSelection);
+                    var fallback = true;
+                    if (streamSelection.Count() == 0)
+                    {
+                        Console.WriteLine("No Stream matches the Selection!\n");
+                        if (config != null && config.fallback == false)
+                        {
+                            Console.WriteLine("Episode will be skipped!\n");
+                            fallback = false;
+                        }
+                        else
+                        {
+                            Console.WriteLine("A random Stream will be selected!\n");
+                            streamSelection = streamList.OrderBy(x => Guid.NewGuid());
+                            fallback = true;
+                        }
+                    }
+                    if (fallback)
+                    {
+                        Console.WriteLine("Your Episode will be downloaded!\n");
+                        var ffmpegManager = new Ffmpeg();
+                        if (config != null && config.outputPath != String.Empty)
+                        {
+                            await ffmpegManager.DownloadEpisode(new Uri(streamSelection.First().url),
+                                $"{config.outputPath}\\{showTitle} - {episodeNumber} - {episodeTitle}.mp4");
+                        }
+                        else
+                        {
+                            await ffmpegManager.DownloadEpisode(new Uri(streamSelection.First().url),
+                                $"{AppDomain.CurrentDomain.BaseDirectory}\\Downloads\\" +
+                                    $"{showTitle} - {episodeNumber} - {episodeTitle}.mp4");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No downloadable Streams have been found!\n");
                 }
             }
         }
