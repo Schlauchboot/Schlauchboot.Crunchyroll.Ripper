@@ -9,7 +9,7 @@ The Software provided here does not come with any Waranty. Additionally, many Pa
 
 ## Currently functioning Elements
 - [X] Download single Episodes
-- [X] Select Streams based on Config
+- [X] Select Streams based on a JSON-Config
 - [X] Download Premium Episodes (if you have an Account)
 - [X] Download based on an Input-File
 
@@ -50,6 +50,16 @@ If you want to download a List of Episodes, you can pass a Text-File containing 
 .\Schlauchboot.Ripper.Crunchyroll file "PATH\TO\TEXT\FILE"
 ```
 
+Every further necessary Input will be requested by the Console. However, a JSON-File can be configured beforehand, which will Skip the whole User-Selection. The Config-Template-File will be generated in in the same Folder as the Executable and needs to be present there. The following Scheme should give a quick Overview of all possible Parameters.
+
+```json
+{
+  "preferedSubLang":"enEN",
+  "preferedAudioLang":"jaJP",
+  "outputPath":"C:\\Temp",
+  "fallback":"false"
+}
+```
+
 ## Open Tasks
 - Implement Error-Handling across the entire Project
-- Parse the Episode-Number from the Source-HTML
